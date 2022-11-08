@@ -54,8 +54,9 @@ class SaveOnBestTrainingRewardCallback(BaseCallback):
               # Mean training reward over the last 100 episodes
               mean_reward = np.mean(y[-100:])
               if self.verbose >= 1:
-                print(f"Num timesteps: {self.num_timesteps}")
-                print(f"Best mean reward: {self.best_mean_reward:.2f} - Last mean reward per episode: {mean_reward:.2f}")
+                if self.num_timesteps % 1000 == 0:
+                    print(f"Num timesteps: {self.num_timesteps}")
+                #print(f"Best mean reward: {self.best_mean_reward:.2f} - Last mean reward per episode: {mean_reward:.2f}")
 
               # New best model, you could save the agent here
               if mean_reward > self.best_mean_reward:
@@ -68,8 +69,8 @@ class SaveOnBestTrainingRewardCallback(BaseCallback):
         return True
 
 # Create log dir
-log_dir = "logs/"
-timesteps = 1e6
+log_dir = "logs-cpu/"
+timesteps = 1e6 * 16 
 os.makedirs(log_dir, exist_ok=True)
 
 # Parallel environments
@@ -87,9 +88,9 @@ env = gym.make(
 env = Monitor(env, log_dir)
 
 model = PPO("MlpPolicy", env, verbose=1)
-callback = SaveOnBestTrainingRewardCallback(check_freq=100, log_dir=log_dir)
+callback = SaveOnBestTrainingRewardCallback(check_freq=10, log_dir=log_dir)
 model.learn(total_timesteps=timesteps, callback=callback) #25000)
-model.save("ppo_lunarlander-v2") #cartpole")
+model.save("ppo_lunarlander-v2-cpu") #cartpole")
 plot_results([log_dir], timesteps, results_plotter.X_TIMESTEPS, "PPO LunarLander")
 #plt.show()
 plt.savefig('ppo_curve.png')
@@ -97,7 +98,7 @@ mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episode
 print('mean reward = {}, std_reward = {}'.format(mean_reward, std_reward))
 del model # remove to demonstrate saving and loading
 
-model = PPO.load("ppo_lunarlander-v2")
+model = PPO.load("ppo_lunarlander-v2-cpu")
 
 os.environ['DISPLAY'] = ':1'
 rgb_list = []
@@ -118,7 +119,7 @@ for num_tr in range(8):
 import imageio
 
 
-writer = imageio.get_writer('PPO_lunarlander-v2.mp4', fps=20)
+writer = imageio.get_writer('PPO_lunarlander-v2-cpu.mp4', fps=20)
 for k in range(len(rgb_list)):
     writer.append_data(rgb_list[k])
 writer.close()
