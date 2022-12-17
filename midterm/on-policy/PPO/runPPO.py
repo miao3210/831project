@@ -69,7 +69,7 @@ class SaveOnBestTrainingRewardCallback(BaseCallback):
         return True
 
 # Create log dir
-log_dir = "logs-cpu/"
+log_dir = "logs-PPO-again/"
 timesteps = 1e6 * 16 
 os.makedirs(log_dir, exist_ok=True)
 
@@ -87,10 +87,10 @@ env = gym.make(
 )
 env = Monitor(env, log_dir)
 
-model = PPO("MlpPolicy", env, verbose=1)
+model = PPO("MlpPolicy", env, verbose=1, device=1)
 callback = SaveOnBestTrainingRewardCallback(check_freq=10, log_dir=log_dir)
 model.learn(total_timesteps=timesteps, callback=callback) #25000)
-model.save("ppo_lunarlander-v2-cpu") #cartpole")
+model.save("ppo_lunarlander-v2-basePPO") #cartpole")
 plot_results([log_dir], timesteps, results_plotter.X_TIMESTEPS, "PPO LunarLander")
 #plt.show()
 plt.savefig('ppo_curve.png')
@@ -98,7 +98,7 @@ mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episode
 print('mean reward = {}, std_reward = {}'.format(mean_reward, std_reward))
 del model # remove to demonstrate saving and loading
 
-model = PPO.load("ppo_lunarlander-v2-cpu")
+model = PPO.load("ppo_lunarlander-v2-basePPO")
 
 os.environ['DISPLAY'] = ':1'
 rgb_list = []

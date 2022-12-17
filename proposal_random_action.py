@@ -28,6 +28,39 @@ rgb_list = []
 actions = []
 random_action = 0
 t = 0
+
+import csv 
+filename = 'random_agent.csv'
+
+while t<3e6+10:
+    ep_rew = 0
+    ep_len = 0
+    if t%10000 == 0:
+        print(t)
+    while not done:
+        random_action = env.action_space.sample()
+        t += 1
+        ep_len += 1
+        observation, reward, done, _ = env.step(random_action)
+        #rgb = env.render()
+        #rgb_list = rgb_list + rgb
+        import pdb 
+        pdb.set_trace()
+        ep_rew += reward 
+        #rewards.append(reward)
+        #actions.append(random_action)
+    rows = [[ep_rew, ep_len, t]]
+    with open(filename, 'a') as csvfile: 
+        # creating a csv writer object 
+        csvwriter = csv.writer(csvfile) 
+        # writing the fields 
+        #csvwriter.writerow(fields) 
+        # writing the data rows 
+        csvwriter.writerows(rows)
+    csvfile.close()
+    #import pdb
+    #pdb.set_trace()
+
 while not done:
     random_action = env.action_space.sample()
     if t<20:
@@ -40,8 +73,6 @@ while not done:
     rgb_list = rgb_list + rgb
     rewards.append(reward)
     actions.append(random_action)
-    #import pdb
-    #pdb.set_trace()
 writer = imageio.get_writer('random_agent_'+str(s)+'.mp4', fps=20)
 print(len(rgb_list))
 for k in range(len(rgb_list)):
@@ -86,4 +117,4 @@ plt.savefig('avg_'+str(s)+'.pdf')
 plt.close()
 
 
-%fps = 1/self.env.model.opt.timestep
+fps = 1/self.env.model.opt.timestep
